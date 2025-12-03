@@ -258,6 +258,52 @@
     .pagination button:hover:not(:disabled) {
       border-color: #4e9cff;
     }
+
+    /* ---------- Mobile layout ---------- */
+    @media (max-width: 768px) {
+      body {
+        padding: 0 0.5rem 1.5rem;
+      }
+      header {
+        padding-top: 1rem;
+      }
+      .table-container {
+        border: none;
+        background: transparent;
+      }
+      table {
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+      }
+      thead {
+        display: none;
+      }
+      tr.paper-row,
+      tr.details-row {
+        display: block;
+      }
+      tr.paper-row {
+        background: #11131b;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      tr.paper-row td.main-row-cell {
+        display: block;
+        border-bottom: 1px solid #1c1f2a;
+      }
+      tr.details-row td {
+        background: #11131b;
+        border-radius: 0 0 10px 10px;
+        border-top: none;
+      }
+      .abstract-cell {
+        max-width: 100%;
+      }
+      .table-scroll {
+        overflow-x: visible;
+      }
+    }
   </style>
 </head>
 <body>
@@ -517,6 +563,7 @@
       pageItems.forEach(p => {
         const isExpanded = expandedRows.has(p.id);
         const trMain = document.createElement("tr");
+        trMain.className = "paper-row";
 
         const titleHtml = p.paperUrl
           ? `<a href="${escapeAttr(p.paperUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.title || "(no title)")}</a>`

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NeurIPS 2025 Papers Browser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- MathJax for rendering LaTeX-style math -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color-scheme: dark light;
+    }
+    body {
+      margin: 0;
+      padding: 0 1rem 2rem;
+      max-width: 1200px;
+      margin-inline: auto;
+      background: #0b0c10;
+      color: #f5f5f5;
+    }
+    header {
+      padding: 1.5rem 0 0.5rem;
+    }
+    h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.6rem;
+    }
+    header p {
+      margin: 0;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+    header a {
+      color: #9bc7ff;
+    }
+
+    /* Search bar */
+    #search-bar {
+      margin: 1rem 0 0.5rem;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #b0b0b0;
+    }
+    input[type="text"],
+    select {
+      padding: 0.35rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #101218;
+      color: #f5f5f5;
+      font-size: 0.9rem;
+    }
+    input[type="text"]:focus,
+    select:focus {
+      outline: 1px solid #4e9cff;
+      border-color: #4e9cff;
+    }
+    #stats {
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    /* Filters grid */
+    #controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.5rem;
+      margin: 0.5rem 0 1rem;
+      align-items: flex-end;
+    }
+
+    /* Table */
+    .table-container {
+      border-radius: 8px;
+      border: 1px solid #222;
+      overflow: hidden;
+      background: #0f1117;
+    }
+    .table-scroll {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 800px;
+    }
+    thead {
+      position: sticky;
+      top: 0;
+      background: #141722;
+      z-index: 1;
+    }
+    th, td {
+      padding: 0.5rem 0.75rem;
+      vertical-align: top;
+      border-bottom: 1px solid #1c1f2a;
+    }
+    th {
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #b8c0ff;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    tr:nth-child(even) td.main-row-cell {
+      background: #11131b;
+    }
+    .paper-title {
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+    .paper-title a {
+      color: #e5f1ff;
+      text-decoration: none;
+    }
+    .paper-title a:hover {
+      text-decoration: underline;
+    }
+    .paper-meta {
+      font-size: 0.75rem;
+      color: #a0a0a0;
+    }
+    .abstract-cell {
+      max-width: 400px;
+      white-space: normal;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.05rem 0.35rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid #333;
+      margin-right: 0.25rem;
+      margin-bottom: 0.15rem;
+    }
+    .badge-session {
+      border-color: #4e9cff;
+      color: #9bc7ff;
+    }
+    .badge-day {
+      border-color: #7bd88f;
+      color: #b3f0c0;
+    }
+    .badge-topic {
+      border-color: #ffa94d;
+      color: #ffd8a8;
+    }
+    .badge-cluster {
+      border-color: #9775fa;
+      color: #d0bfff;
+    }
+
+    #error {
+      margin-top: 0.75rem;
+      color: #ff8787;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    /* Details row */
+    .details-row td {
+      background: #090b10;
+      border-top: none;
+    }
+    .details-content {
+      padding-top: 0.3rem;
+      font-size: 0.8rem;
+      color: #ddd;
+    }
+    .detail-section {
+      margin-bottom: 0.45rem;
+    }
+    .detail-section strong {
+      color: #b8c0ff;
+    }
+    .detail-actions {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+    }
+    .btn-link {
+      display: inline-block;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      text-decoration: none;
+      border: 1px solid #4e9cff;
+      font-size: 0.75rem;
+      color: #e5f1ff;
+      background: #111725;
+    }
+    .btn-link:hover {
+      background: #1b2942;
+    }
+    .details-button {
+      margin-top: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      border: 1px solid #444;
+      background: #161925;
+      color: #f5f5f5;
+      cursor: pointer;
+    }
+    .details-button:hover {
+      border-color: #4e9cff;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+    .pagination button {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid #444;
+      background: #141722;
+      color: #f5f5f5;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .pagination button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .pagination button:hover:not(:disabled) {
+      border-color: #4e9cff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NeurIPS 2025 Papers Browser</h1>
+    <p>
+      Unofficial personal browser for
+      <a href="https://neurips.cc/" target="_blank" rel="noopener noreferrer">NeurIPS 2025</a>
+      papers. Cluster labels and textual annotations (e.g. summaries, “explain like I’m 5”)
+      are derived from
+      <a href="https://jalammar.github.io/assets/neurips_2025.html" target="_blank" rel="noopener noreferrer">
+        Jay Alammar’s NeurIPS 2025 visualization
+      </a>.
+    </p>
+  </header>
+
+  <section id="search-bar">
+    <div class="control-group">
+      <label for="search-input">Search (title, authors, abstract, ELI5)</label>
+      <input id="search-input" type="text" placeholder="e.g. diffusion, transformer, optimization..." />
+      <div id="stats"></div>
+    </div>
+  </section>
+
+  <section id="controls">
+    <div class="control-group">
+      <label for="session-filter">Session</label>
+      <select id="session-filter">
+        <option value="">All sessions</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="day-filter">Day</label>
+      <select id="day-filter">
+        <option value="">All days</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="topic-filter">Topic</label>
+      <select id="topic-filter">
+        <option value="">All topics</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="highcluster-filter">High cluster</label>
+      <select id="highcluster-filter">
+        <option value="">All high clusters</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="cluster-filter">Cluster</label>
+      <select id="cluster-filter">
+        <option value="">All clusters</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="sort-select">Sort</label>
+      <select id="sort-select">
+        <option value="title-asc">Title A→Z</option>
+        <option value="title-desc">Title Z→A</option>
+        <option value="time-asc">Time ↑</option>
+        <option value="time-desc">Time ↓</option>
+      </select>
+    </div>
+  </section>
+
+  <div id="error"></div>
+
+  <section class="table-container">
+    <div class="table-scroll">
+      <table id="papers-table">
+        <thead>
+          <tr>
+            <th>Paper</th>
+            <th>Session / Type</th>
+            <th>Day</th>
+            <th>Topic & Clusters</th>
+            <th>Overview</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Filled by JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div id="pagination" class="pagination">
+    <button id="prev-page" disabled>Previous</button>
+    <span id="page-info">Page 1 / 1</span>
+    <button id="next-page" disabled>Next</button>
+  </div>
+
+  <script>
+    const DATA_URL = "papers.json";
+
+    let allPapers = [];
+    let filteredPapers = [];
+    let currentPage = 1;
+    const PAGE_SIZE = 50;
+    const expandedRows = new Set();
+
+    async function loadData() {
+      const errorEl = document.getElementById("error");
+      try {
+        const resp = await fetch(DATA_URL);
+        if (!resp.ok) {
+          throw new Error("HTTP " + resp.status + " while fetching " + DATA_URL);
+        }
+        const raw = await resp.json();
+        const papersArray = Array.isArray(raw) ? raw : (raw.papers || raw.items || []);
+        if (!Array.isArray(papersArray)) {
+          throw new Error("JSON is not a list. Adjust parsing in index.html.");
+        }
+
+        allPapers = papersArray.map(normalizePaper);
+        initFilters();
+        applyFilters(); // filters + sort + render
+      } catch (err) {
+        console.error(err);
+        errorEl.textContent = "Error loading data: " + err.message;
+        errorEl.style.display = "block";
+      }
+    }
+
+    function normalizePaper(raw, index) {
+      const day = raw.starttime ? String(raw.starttime).slice(0, 10) : "";
+
+      return {
+        id: String(raw.id ?? index),
+        title: raw.name || "",
+        authors: raw.authors || "",
+        abstract: raw.abstract || "",
+        topic: raw.topic || "",
+        session: raw.session || "",
+        eventtype: raw.eventtype || "",
+        room: raw.room_name || "",
+        starttime: raw.starttime || "",
+        endtime: raw.endtime || "",
+        paperUrl: raw.paper_url || "",
+        highCluster: raw.high_cluster_name || "",
+        cluster: raw.cluster_name || "",
+        summary: raw.summary || "",
+        eli5: raw.explain_to_a_5_year || "",
+        problem: raw.problem_statement || "",
+        relevance: raw.practical_relevance || "",
+        day: day
+      };
+    }
+
+    function initFilters() {
+      const sessionSelect = document.getElementById("session-filter");
+      const daySelect = document.getElementById("day-filter");
+      const topicSelect = document.getElementById("topic-filter");
+      const highClusterSelect = document.getElementById("highcluster-filter");
+      const clusterSelect = document.getElementById("cluster-filter");
+      const searchInput = document.getElementById("search-input");
+
+      populateFilter(sessionSelect, uniqueValues(allPapers.map(p => p.session)));
+      populateFilter(daySelect, uniqueValues(allPapers.map(p => p.day)));
+      populateFilter(topicSelect, uniqueValues(allPapers.map(p => p.topic)));
+      populateFilter(highClusterSelect, uniqueValues(allPapers.map(p => p.highCluster)));
+      populateFilter(clusterSelect, uniqueValues(allPapers.map(p => p.cluster)));
+
+      sessionSelect.addEventListener("change", applyFilters);
+      daySelect.addEventListener("change", applyFilters);
+      topicSelect.addEventListener("change", applyFilters);
+      highClusterSelect.addEventListener("change", applyFilters);
+      clusterSelect.addEventListener("change", applyFilters);
+      searchInput.addEventListener("input", debounce(applyFilters, 200));
+    }
+
+    function populateFilter(select, values) {
+      values.forEach(v => {
+        if (!v) return;
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        select.appendChild(opt);
+      });
+    }
+
+    function uniqueValues(arr) {
+      return [...new Set(arr.filter(v => v && String(v).trim() !== ""))].sort();
+    }
+
+    function applyFilters() {
+      const query = document.getElementById("search-input").value.trim().toLowerCase();
+      const sessionVal = document.getElementById("session-filter").value;
+      const dayVal = document.getElementById("day-filter").value;
+      const topicVal = document.getElementById("topic-filter").value;
+      const highClusterVal = document.getElementById("highcluster-filter").value;
+      const clusterVal = document.getElementById("cluster-filter").value;
+
+      filteredPapers = allPapers.filter(p => {
+        if (sessionVal && p.session !== sessionVal) return false;
+        if (dayVal && p.day !== dayVal) return false;
+        if (topicVal && p.topic !== topicVal) return false;
+        if (highClusterVal && p.highCluster !== highClusterVal) return false;
+        if (clusterVal && p.cluster !== clusterVal) return false;
+
+        if (query) {
+          const haystack = (
+            (p.title || "") + " " +
+            (p.authors || "") + " " +
+            (p.abstract || "") + " " +
+            (p.summary || "") + " " +
+            (p.eli5 || "") + " " +
+            (p.topic || "") + " " +
+            (p.highCluster || "") + " " +
+            (p.cluster || "")
+          ).toLowerCase();
+          if (!haystack.includes(query)) return false;
+        }
+        return true;
+      });
+
+      applySort();
+      currentPage = 1;
+      renderTable();
+      updateStats();
+      updatePaginationControls();
+    }
+
+    function applySort() {
+      const sortValue = document.getElementById("sort-select").value || "title-asc";
+      filteredPapers.sort((a, b) => {
+        if (sortValue === "title-asc" || sortValue === "title-desc") {
+          const ta = (a.title || "").toLowerCase();
+          const tb = (b.title || "").toLowerCase();
+          const cmp = ta.localeCompare(tb);
+          return sortValue === "title-asc" ? cmp : -cmp;
+        } else {
+          const ta = a.starttime || "";
+          const tb = b.starttime || "";
+          const cmp = ta.localeCompare(tb);
+          return sortValue === "time-asc" ? cmp : -cmp;
+        }
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector("#papers-table tbody");
+      tbody.innerHTML = "";
+
+      const totalPages = Math.max(1, Math.ceil(filteredPapers.length / PAGE_SIZE));
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIdx = (currentPage - 1) * PAGE_SIZE;
+      const pageItems = filteredPapers.slice(startIdx, startIdx + PAGE_SIZE);
+
+      pageItems.forEach(p => {
+        const isExpanded = expandedRows.has(p.id);
+        const trMain = document.createElement("tr");
+
+        const titleHtml = p.paperUrl
+          ? `<a href="${escapeAttr(p.paperUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.title || "(no title)")}</a>`
+          : escapeHtml(p.title || "(no title)");
+
+        const timeRange = p.starttime
+          ? `${escapeHtml(p.starttime.slice(11, 16))}–${escapeHtml((p.endtime || "").slice(11, 16))}`
+          : "";
+
+        const overviewSnippetSource = p.summary || p.abstract || "";
+        const overviewSnippet = overviewSnippetSource
+          ? overviewSnippetSource.slice(0, 160) + (overviewSnippetSource.length > 160 ? "…" : "")
+          : "";
+
+        const clusterLine = [p.highCluster, p.cluster].filter(Boolean).join(" · ");
+
+        trMain.innerHTML = `
+          <td class="main-row-cell">
+            <div class="paper-title">${titleHtml}</div>
+            <div class="paper-meta">${escapeHtml(p.authors || "")}</div>
+          </td>
+          <td class="main-row-cell">
+            ${p.eventtype ? `<span class="badge badge-session">${escapeHtml(p.eventtype)}</span>` : ""}
+            ${p.session ? `<div class="paper-meta">${escapeHtml(p.session)}</div>` : ""}
+            ${p.room ? `<div class="paper-meta">${escapeHtml(p.room)}</div>` : ""}
+          </td>
+          <td class="main-row-cell">
+            ${p.day ? `<span class="badge badge-day">${escapeHtml(p.day)}</span>` : ""}
+            ${timeRange ? `<div class="paper-meta">${timeRange}</div>` : ""}
+          </td>
+          <td class="main-row-cell">
+            ${p.topic ? `<div><span class="badge badge-topic">${escapeHtml(p.topic)}</span></div>` : ""}
+            ${clusterLine ? `<div class="paper-meta">${escapeHtml(clusterLine)}</div>` : ""}
+          </td>
+          <td class="main-row-cell abstract-cell">
+            ${overviewSnippet ? escapeHtml(overviewSnippet) : ""}
+            <div>
+              <button class="details-button details-toggle" data-id="${escapeAttr(p.id)}">
+                ${isExpanded ? "Hide details" : "Show details"}
+              </button>
+            </div>
+          </td>
+        `;
+
+        const trDetails = document.createElement("tr");
+        trDetails.className = "details-row";
+        trDetails.dataset.id = p.id;
+        trDetails.style.display = isExpanded ? "" : "none";
+
+        trDetails.innerHTML = `
+          <td colspan="5">
+            <div class="details-content">
+              ${p.summary ? `
+                <div class="detail-section">
+                  <strong>Summary:</strong> ${escapeHtml(p.summary)}
+                </div>` : ""
+              }
+              ${p.problem ? `
+                <div class="detail-section">
+                  <strong>Problem:</strong> ${escapeHtml(p.problem)}
+                </div>` : ""
+              }
+              ${p.relevance ? `
+                <div class="detail-section">
+                  <strong>Practical relevance:</strong> ${escapeHtml(p.relevance)}
+                </div>` : ""
+              }
+              ${p.abstract ? `
+                <div class="detail-section">
+                  <strong>Abstract:</strong> ${escapeHtml(p.abstract)}
+                </div>` : ""
+              }
+              ${p.eli5 ? `
+                <div class="detail-section">
+                  <strong>Explain like I'm 5:</strong> ${escapeHtml(p.eli5)}
+                </div>` : ""
+              }
+              <div class="detail-actions">
+                ${p.paperUrl ? `
+                  <a class="btn-link" href="${escapeAttr(p.paperUrl)}"
+                     target="_blank" rel="noopener noreferrer">
+                    Open paper
+                  </a>` : ""
+                }
+              </div>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(trMain);
+        tbody.appendChild(trDetails);
+      });
+
+      document.querySelectorAll(".details-toggle").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const pid = String(btn.dataset.id);
+          if (expandedRows.has(pid)) {
+            expandedRows.delete(pid);
+          } else {
+            expandedRows.add(pid);
+          }
+          renderTable();
+        });
+      });
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    function updateStats() {
+      const statsEl = document.getElementById("stats");
+      if (!allPapers.length) {
+        statsEl.textContent = "No papers loaded.";
+        return;
+      }
+      statsEl.textContent = `${filteredPapers.length} / ${allPapers.length} papers`;
+    }
+
+    function updatePaginationControls() {
+      const totalPages = Math.max(1, Math.ceil(filteredPapers.length / PAGE_SIZE));
+      const pageInfo = document.getElementById("page-info");
+      const prevBtn = document.getElementById("prev-page");
+      const nextBtn = document.getElementById("next-page");
+
+      pageInfo.textContent = `Page ${currentPage} / ${totalPages}`;
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+    function escapeAttr(str) {
+      return String(str || "").replace(/"/g, "&quot;");
+    }
+
+    function debounce(fn, delay) {
+      let timer;
+      return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("prev-page").addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+          updateStats();
+          updatePaginationControls();
+        }
+      });
+      document.getElementById("next-page").addEventListener("click", () => {
+        const totalPages = Math.max(1, Math.ceil(filteredPapers.length / PAGE_SIZE));
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderTable();
+          updateStats();
+          updatePaginationControls();
+        }
+      });
+      document.getElementById("sort-select").addEventListener("change", () => {
+        applySort();
+        currentPage = 1;
+        renderTable();
+        updateStats();
+        updatePaginationControls();
+      });
+
+      loadData();
+    });
+  </script>
+</body>
+</html>

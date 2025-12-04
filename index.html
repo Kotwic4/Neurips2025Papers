@@ -258,7 +258,7 @@
     .pagination button:hover:not(:disabled) {
       border-color: #4e9cff;
     }
-
+    
     /* ---------- Mobile layout ---------- */
     @media (max-width: 768px) {
       body {
@@ -274,7 +274,7 @@
       table {
         min-width: 0;
         border-collapse: separate;
-        border-spacing: 0 0.75rem;
+        border-spacing: 0 1rem; /* more vertical space between cards */
       }
       thead {
         display: none;
@@ -285,17 +285,19 @@
       }
       tr.paper-row {
         background: #11131b;
-        border-radius: 10px;
+        border-radius: 14px;
         overflow: hidden;
+        border: 1px solid #23283a;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6);
       }
       tr.paper-row td.main-row-cell {
         display: block;
         border-bottom: 1px solid #1c1f2a;
       }
       tr.details-row td {
-        background: #11131b;
-        border-radius: 0 0 10px 10px;
-        border-top: none;
+        background: #10131f;
+        border-radius: 0 0 14px 14px;
+        border-top: 1px solid #1c1f2a;
       }
       .abstract-cell {
         max-width: 100%;

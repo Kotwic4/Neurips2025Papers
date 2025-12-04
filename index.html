@@ -457,6 +457,7 @@
         eli5: raw.explain_to_a_5_year || "",
         problem: raw.problem_statement || "",
         relevance: raw.practical_relevance || "",
+        poster_position: raw.poster_position || "",
         day: day
       };
     }
@@ -521,6 +522,7 @@
             (p.eli5 || "") + " " +
             (p.topic || "") + " " +
             (p.highCluster || "") + " " +
+            (p.poster_position || "") + " " +
             (p.cluster || "")
           ).toLowerCase();
           if (!haystack.includes(query)) return false;
@@ -591,6 +593,7 @@
             ${p.eventtype ? `<span class="badge badge-session">${escapeHtml(p.eventtype)}</span>` : ""}
             ${p.session ? `<div class="paper-meta">${escapeHtml(p.session)}</div>` : ""}
             ${p.room ? `<div class="paper-meta">${escapeHtml(p.room)}</div>` : ""}
+            ${p.poster_position ? `<div class="paper-meta">${escapeHtml(p.poster_position)}</div>` : ""}
           </td>
           <td class="main-row-cell">
             ${p.day ? `<span class="badge badge-day">${escapeHtml(p.day)}</span>` : ""}

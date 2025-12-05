@@ -353,6 +353,13 @@
     </div>
 
     <div class="control-group">
+      <label for="decision-filter">Decision</label>
+      <select id="decision-filter">
+        <option value="">All decision</option>
+      </select>
+    </div>
+
+    <div class="control-group">
       <label for="highcluster-filter">High cluster</label>
       <select id="highcluster-filter">
         <option value="">All high clusters</option>
@@ -446,6 +453,7 @@
         abstract: raw.abstract || "",
         topic: raw.topic || "",
         session: raw.session || "",
+        decision: raw.decision || "",
         eventtype: raw.eventtype || "",
         room: raw.room_name || "",
         starttime: raw.starttime || "",
@@ -468,6 +476,7 @@
       const topicSelect = document.getElementById("topic-filter");
       const highClusterSelect = document.getElementById("highcluster-filter");
       const clusterSelect = document.getElementById("cluster-filter");
+      const decisionSelect = document.getElementById("decision-filter");
       const searchInput = document.getElementById("search-input");
 
       populateFilter(sessionSelect, uniqueValues(allPapers.map(p => p.session)));
@@ -475,12 +484,14 @@
       populateFilter(topicSelect, uniqueValues(allPapers.map(p => p.topic)));
       populateFilter(highClusterSelect, uniqueValues(allPapers.map(p => p.highCluster)));
       populateFilter(clusterSelect, uniqueValues(allPapers.map(p => p.cluster)));
+      populateFilter(decisionSelect, uniqueValues(allPapers.map(p => p.decision)));
 
       sessionSelect.addEventListener("change", applyFilters);
       daySelect.addEventListener("change", applyFilters);
       topicSelect.addEventListener("change", applyFilters);
       highClusterSelect.addEventListener("change", applyFilters);
       clusterSelect.addEventListener("change", applyFilters);
+      decisionSelect.addEventListener("change", applyFilters);
       searchInput.addEventListener("input", debounce(applyFilters, 200));
     }
 
@@ -505,6 +516,7 @@
       const topicVal = document.getElementById("topic-filter").value;
       const highClusterVal = document.getElementById("highcluster-filter").value;
       const clusterVal = document.getElementById("cluster-filter").value;
+      const decisionVal = document.getElementById("decision-filter").value;
 
       filteredPapers = allPapers.filter(p => {
         if (sessionVal && p.session !== sessionVal) return false;
@@ -512,6 +524,7 @@
         if (topicVal && p.topic !== topicVal) return false;
         if (highClusterVal && p.highCluster !== highClusterVal) return false;
         if (clusterVal && p.cluster !== clusterVal) return false;
+        if (decisionVal && p.decision !== decisionVal) return false;
 
         if (query) {
           const haystack = (
@@ -592,6 +605,7 @@
           <td class="main-row-cell">
             ${p.eventtype ? `<span class="badge badge-session">${escapeHtml(p.eventtype)}</span>` : ""}
             ${p.session ? `<div class="paper-meta">${escapeHtml(p.session)}</div>` : ""}
+            ${p.decision ? `<div class="paper-meta">${escapeHtml(p.decision)}</div>` : ""}
             ${p.room ? `<div class="paper-meta">${escapeHtml(p.room)}</div>` : ""}
             ${p.poster_position ? `<div class="paper-meta">${escapeHtml(p.poster_position)}</div>` : ""}
           </td>
